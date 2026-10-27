@@ -65,7 +65,7 @@ exports.handler = async (event) => {
       "black-forest-labs/FLUX.2-klein-9B";
 
     const upstream = await fetch(
-      `https://router.huggingface.co/fal-ai/models/${model}`,
+        "https://router.huggingface.co/fal-ai/models/fal-ai/flux-2/klein/9b/edit",
       {
         method: "POST",
         headers: {
