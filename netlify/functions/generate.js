@@ -65,6 +65,20 @@ exports.handler = async (event) => {
       "black-forest-labs/FLUX.2-klein-9B";
 
     const upstream = await fetch(
+  "https://router.huggingface.co/v1/images/generations",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.HF_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "black-forest-labs/FLUX.2-klein-9B",
+      prompt: `${prompt}. Use the uploaded room photo as the reference.`,
+      image: match[2]
+    })
+  }
+);
         "https://router.huggingface.co/fal-ai/models/fal-ai/flux-2/klein/9b/edit",
       {
         method: "POST",
