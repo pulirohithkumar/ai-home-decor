@@ -7,12 +7,84 @@
   <title>AI Home Decor Studio</title>
   <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-  <header class="topbar">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <a class="sidebar-logo" href="/" aria-label="RoomBloom home">⌂</a>
+      <div class="sidebar-brand-text">
+        <strong>RoomBloom</strong>
+        <small>AI HOME DECOR</small>
+      </div>
+      <button
+        class="sidebar-toggle"
+        id="sidebar-toggle"
+        type="button"
+        aria-label="Collapse sidebar"
+        aria-expanded="true"
+        title="Collapse sidebar"
+      >‹</button>
+    </div>
+
+    <p class="sidebar-label">WORKSPACE</p>
+
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a class="sidebar-link active" href="#home" title="Dashboard">
+        <span class="nav-icon">⌂</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+
+      <a class="sidebar-link" href="#decor-form" title="AI Decor Studio">
+        <span class="nav-icon">✦</span>
+        <span class="nav-text">AI Decor Studio</span>
+      </a>
+
+      <a class="sidebar-link" href="#result-area" title="My Designs">
+        <span class="nav-icon">▧</span>
+        <span class="nav-text">My Designs</span>
+      </a>
+
+      <a class="sidebar-link" href="#result-area" title="Favorites">
+        <span class="nav-icon">♡</span>
+        <span class="nav-text">Favorites</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-tip">
+        <span class="nav-icon">✧</span>
+        <div class="nav-text">
+          <strong>Your space, reimagined</strong>
+          <small>Create a room you'll love.</small>
+        </div>
+      </div>
+
+      <a class="sidebar-link" href="#settings" title="Settings">
+        <span class="nav-icon">⚙</span>
+        <span class="nav-text">Settings</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <button
+        class="mobile-menu"
+        id="mobile-menu"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+      >☰</button>
+      <a class="brand" href="/">
+        <span class="brand-icon">⌂</span>
+        RoomBloom <small>AI HOME DECOR</small>
+      </a>
+      <span class="top-note">Your room, reimagined</span>
+    </header>
+
     <a class="brand" href="/"> <span class="brand-icon">⌂</span> RoomBloom <small>AI HOME DECOR</small></a>
     <span class="top-note">Your room, reimagined</span>
   </header>
-  <main class="page">
+ <main class="page" id="home">
     <section class="hero">
       <p class="eyebrow">DESIGN YOUR SPACE WITH AI</p>
       <h1>A fresh look for<br><span>your favourite room.</span></h1>
