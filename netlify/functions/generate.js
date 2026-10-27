@@ -1,4 +1,6 @@
 
+const { InferenceClient } = require("@huggingface/inference");
+
 exports.handler = async (event) => {
   const reply = (statusCode, body) => ({
     statusCode,
@@ -33,7 +35,6 @@ exports.handler = async (event) => {
       "living room", "bedroom", "kitchen",
       "dining room", "home office", "bathroom"
     ];
-
     const styles = [
       "modern minimalist", "warm bohemian", "Scandinavian",
       "luxury contemporary", "industrial modern", "traditional Indian"
@@ -43,55 +44,30 @@ exports.handler = async (event) => {
       return reply(400, { error: "Choose a valid room and style." });
     }
 
-    if (match[2].length > 10_000_000) {
-      return reply(413, { error: "Image is too large. Try a smaller photo." });
-    }
-
     const prompt =
-      `Redesign this ${room} in ${style} style. Preserve the original ` +
-      `room layout, doors, windows, walls and camera angle. Create a ` +
-      `photorealistic, tasteful interior design. ${String(extra).slice(0, 300)}`;
+      `Redesign this ${room} in ${style} style. Preserve the room's ` +
+      `layout, walls, doors, windows, and camera angle. Make it photorealistic. ` +
+      String(extra).slice(0, 300);
 
-    const upstream = await fetch(
-      "https://router.huggingface.co/fal-ai/models/black-forest-labs/FLUX.2-klein-9B",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.HF_TOKEN}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          inputs: match[2],
-          parameters: {
-            prompt
-          },
-          model: "black-forest-labs/FLUX.2-klein-9B"
-        })
-      }
-    );
+    const client = new InferenceClient(process.env.HF_TOKEN);
 
-    if (!upstream.ok) {
-      const detail = (await upstream.text()).slice(0, 400);
-      return reply(502, {
-        error: `Hugging Face error ${upstream.status}: ${detail}`
-      });
-    }
+    const inputImage = Buffer.from(match[2], "base64");
 
-    const contentType = upstream.headers.get("content-type") || "";
+    const result = await client.imageToImage({
+      inputs: new Blob([inputImage], { type: match[1] }),
+      model: "black-forest-labs/FLUX.2-klein-9B",
+      parameters: { prompt }
+    });
 
-    if (!contentType.startsWith("image/")) {
-      const detail = (await upstream.text()).slice(0, 300);
-      return reply(502, { error: `Unexpected provider response: ${detail}` });
-    }
-
-    const result = Buffer.from(await upstream.arrayBuffer());
+    const output = Buffer.from(await result.arrayBuffer());
 
     return reply(200, {
-      image: `data:${contentType.split(";")[0]};base64,${result.toString("base64")}`
+      image: `data:image/png;base64,${output.toString("base64")}`
     });
   } catch (err) {
+    console.error("Image generation failed:", err);
     return reply(502, {
-      error: String(err.message || err).slice(0, 400)
+      error: `Image generation failed: ${String(err.message || err).slice(0, 350)}`
     });
   }
 };
