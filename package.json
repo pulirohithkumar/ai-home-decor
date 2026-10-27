@@ -8,8 +8,9 @@
     "dev": "netlify dev"
   },
   "dependencies": {
-    "@huggingface/inference": "^4.0.0"
-  },
+  "@huggingface/inference": "^4.0.0",
+  "@gradio/client": "^1.0.0"
+},
   "devDependencies": {
     "netlify-cli": "^23.0.0"
   }
