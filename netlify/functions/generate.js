@@ -1,85 +1,59 @@
 
 exports.handler = async (event) => {
+  const reply = (statusCode, body) => ({
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
+    },
+    body: JSON.stringify(body)
+  });
+
   if (event.httpMethod !== "POST") {
-    return reply(405, {
-      error: "Use POST for image generation."
-    });
+    return reply(405, { error: "Use POST for image generation." });
   }
 
   if (!process.env.HF_TOKEN) {
-    return reply(503, {
-      error: "AI is not configured yet. Add HF_TOKEN in Netlify."
-    });
-  }
-
-  let body;
-  try {
-    body = JSON.parse(event.body || "{}");
-  } catch {
-    return reply(400, { error: "Invalid request body." });
-  }
-
-  const { image, room, style, extra = "" } = body;
-
-  if (typeof image !== "string" ||
-      !image.startsWith("data:image/")) {
-    return reply(400, { error: "Please upload a valid room image." });
-  }
-
-  const allowedRooms = [
-    "living room", "bedroom", "kitchen",
-    "dining room", "home office", "bathroom"
-  ];
-
-  const allowedStyles = [
-    "modern minimalist", "warm bohemian",
-    "Scandinavian", "luxury contemporary",
-    "industrial modern", "traditional Indian"
-  ];
-
-  if (!allowedRooms.includes(room) ||
-      !allowedStyles.includes(style)) {
-    return reply(400, {
-      error: "Choose a valid room type and decor style."
-    });
+    return reply(503, { error: "HF_TOKEN is missing in Netlify." });
   }
 
   try {
-    const match = image.match(
-      /^data:(image\/(?:png|jpeg|webp));base64,([\s\S]+)$/
-    );
+    const { image, room, style, extra = "" } =
+      JSON.parse(event.body || "{}");
+
+    const match = typeof image === "string"
+      ? image.match(/^data:(image\/(?:png|jpeg|webp));base64,([\s\S]+)$/)
+      : null;
 
     if (!match) {
-      return reply(400, {
-        error: "Use a PNG, JPG, or WebP image."
-      });
+      return reply(400, { error: "Upload a PNG, JPG, or WebP room photo." });
+    }
+
+    const rooms = [
+      "living room", "bedroom", "kitchen",
+      "dining room", "home office", "bathroom"
+    ];
+
+    const styles = [
+      "modern minimalist", "warm bohemian", "Scandinavian",
+      "luxury contemporary", "industrial modern", "traditional Indian"
+    ];
+
+    if (!rooms.includes(room) || !styles.includes(style)) {
+      return reply(400, { error: "Choose a valid room and style." });
+    }
+
+    if (match[2].length > 10_000_000) {
+      return reply(413, { error: "Image is too large. Try a smaller photo." });
     }
 
     const prompt =
-      `Redesign this existing ${room} in ${style} interior design style. ` +
-      `Preserve the room layout, walls, doors, windows, and camera angle. ` +
-      `Make the result photorealistic and achievable. ` +
-      String(extra).slice(0, 300);
-
-    const model = process.env.HF_MODEL ||
-      "black-forest-labs/FLUX.2-klein-9B";
+      `Redesign this ${room} in ${style} style. Preserve the original ` +
+      `room layout, doors, windows, walls and camera angle. Create a ` +
+      `photorealistic, tasteful interior design. ${String(extra).slice(0, 300)}`;
 
     const upstream = await fetch(
-  "https://router.huggingface.co/v1/images/generations",
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.HF_TOKEN}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "black-forest-labs/FLUX.2-klein-9B",
-      prompt: `${prompt}. Use the uploaded room photo as the reference.`,
-      image: match[2]
-    })
-  }
-);
-        "https://router.huggingface.co/fal-ai/models/fal-ai/flux-2/klein/9b/edit",
+      "https://router.huggingface.co/v1/image-to-image",
       {
         method: "POST",
         headers: {
@@ -88,26 +62,26 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify({
           inputs: match[2],
-          parameters: { prompt }
+          parameters: {
+            prompt
+          },
+          model: "black-forest-labs/FLUX.2-klein-9B"
         })
       }
     );
 
     if (!upstream.ok) {
-      const detail = await upstream.text();
+      const detail = (await upstream.text()).slice(0, 400);
       return reply(502, {
-        error: `AI provider error (${upstream.status}). ${detail.slice(0, 300)}`
+        error: `Hugging Face error ${upstream.status}: ${detail}`
       });
     }
 
-    const contentType =
-      upstream.headers.get("content-type") || "";
+    const contentType = upstream.headers.get("content-type") || "";
 
-    if (!contentType.includes("image/")) {
-      const detail = await upstream.text();
-      return reply(502, {
-        error: `Provider did not return an image. ${detail.slice(0, 250)}`
-      });
+    if (!contentType.startsWith("image/")) {
+      const detail = (await upstream.text()).slice(0, 300);
+      return reply(502, { error: `Unexpected provider response: ${detail}` });
     }
 
     const result = Buffer.from(await upstream.arrayBuffer());
@@ -117,18 +91,7 @@ exports.handler = async (event) => {
     });
   } catch (err) {
     return reply(502, {
-      error: `Could not contact AI provider: ${String(err.message || err).slice(0, 200)}`
+      error: String(err.message || err).slice(0, 400)
     });
   }
 };
-
-function reply(statusCode, body) {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "no-store"
-    },
-    body: JSON.stringify(body)
-  };
-}
