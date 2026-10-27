@@ -37,7 +37,20 @@ exports.handler = async (event) => {
     form.append("parameters", JSON.stringify({ prompt }));
 
     const model = process.env.HF_MODEL || "black-forest-labs/FLUX.2-klein-9B";
-    const upstream = await fetch(`https://router.huggingface.co/fal-ai/models/${model}`, {
+   const upstream = await fetch(
+  `https://router.huggingface.co/fal-ai/models/${model}`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.HF_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      inputs: match[2],
+      parameters: { prompt },
+    }),
+  }
+);
       method: "POST",
       headers: { Authorization: `Bearer ${process.env.HF_TOKEN}` },
       body: form
