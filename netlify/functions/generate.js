@@ -53,7 +53,7 @@ exports.handler = async (event) => {
       `photorealistic, tasteful interior design. ${String(extra).slice(0, 300)}`;
 
     const upstream = await fetch(
-      "https://router.huggingface.co/v1/image-to-image",
+      "https://router.huggingface.co/fal-ai/models/black-forest-labs/FLUX.2-klein-9B",
       {
         method: "POST",
         headers: {
