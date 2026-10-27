@@ -1,0 +1,12 @@
+{
+  "name": "roombloom-ai-home-decor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Netlify-hosted AI home decor frontend and serverless function",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "devDependencies": {
+    "netlify-cli": "^23.0.0"
+  }
+}
