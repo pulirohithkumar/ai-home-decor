@@ -1,6 +1,4 @@
 
-const { Client, handle_file } = require("@gradio/client");
-
 exports.handler = async (event) => {
   const reply = (statusCode, body) => ({
     statusCode,
@@ -45,54 +43,77 @@ exports.handler = async (event) => {
       });
     }
 
-    const prompt =
-      `Redesign this ${room} in ${style} style. ` +
-      "Preserve the existing layout, walls, doors, windows, " +
-      "and camera angle. Photorealistic interior design. " +
-      String(extra).slice(0, 300);
+    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+    const token = process.env.CLOUDFLARE_API_TOKEN;
 
-    const imageBuffer = Buffer.from(match[2], "base64");
-    const imageBlob = new Blob([imageBuffer], {
-      type: `image/${match[1]}`
-    });
-
-    const client = await Client.connect(
-      "yashAI007/Image_to_Image_Generation"
-    );
-
-    const result = await client.predict("/img_args", [
-      prompt,
-      "blurry, low quality, distorted walls, distorted furniture",
-      handle_file(imageBlob),
-      "Realistic_Vision_V5_1_noVAE",
-      "Euler a",
-      896,
-      896,
-      30,
-      7.5,
-      1,
-      0,
-      0.8
-    ]);
-
-    const output = result.data?.[0]?.[0]?.image;
-
-    if (!output) {
-      console.error("Unexpected Space response:", result.data);
-      return reply(502, {
-        error: "The image service returned no generated image."
+    if (!accountId || !token) {
+      return reply(500, {
+        error: "Cloudflare credentials are missing in Netlify."
       });
     }
 
-    const outputResponse = await fetch(output.url);
+    const prompt =
+      `Redesign this ${room} in ${style} interior design style. ` +
+      "Use the uploaded room photo as the reference image. " +
+      "Preserve the room's walls, doors, windows, layout, " +
+      "and camera angle. Produce a realistic interior design. " +
+      String(extra).slice(0, 300);
 
-    if (!outputResponse.ok) {
-      throw new Error("Could not retrieve the generated image.");
+    const imageBuffer = Buffer.from(match[2], "base64");
+
+    // FLUX.2 Klein 4B accepts reference images smaller than 512x512.
+    const form = new FormData();
+    form.append("prompt", prompt);
+    form.append("input_image_0", new Blob([imageBuffer], {
+      type: `image/${match[1]}`
+    }), `room.${match[1] === "jpeg" ? "jpg" : match[1]}`);
+    form.append("width", "512");
+    form.append("height", "512");
+
+    const apiResponse = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/black-forest-labs/flux-2-klein-4b`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: form
+      }
+    );
+
+    if (!apiResponse.ok) {
+      const details = await apiResponse.text();
+      console.error("Cloudflare AI error:", apiResponse.status, details);
+
+      return reply(502, {
+        error: `Cloudflare image generation failed (${apiResponse.status}). Check your Cloudflare AI access and usage limits.`
+      });
     }
 
-    const outputBuffer = Buffer.from(
-      await outputResponse.arrayBuffer()
-    );
+    const contentType = apiResponse.headers.get("content-type") || "";
+    let outputBuffer;
+
+    if (contentType.includes("application/json")) {
+      const result = await apiResponse.json();
+      const encoded = result.result?.image;
+
+      if (typeof encoded !== "string") {
+        console.error("Unexpected Cloudflare response:", result);
+        return reply(502, {
+          error: "Cloudflare returned an unexpected image response."
+        });
+      }
+
+      outputBuffer = Buffer.from(encoded, "base64");
+    } else {
+      outputBuffer = Buffer.from(await apiResponse.arrayBuffer());
+    }
+
+    if (!outputBuffer.length) {
+      return reply(502, {
+        error: "Cloudflare returned an empty image."
+      });
+    }
 
     return reply(200, {
       image: `data:image/png;base64,${outputBuffer.toString("base64")}`
@@ -100,9 +121,7 @@ exports.handler = async (event) => {
   } catch (err) {
     console.error("Image generation failed:", err);
     return reply(502, {
-      error: `Image generation failed: ${String(
-        err.message || err
-      ).slice(0, 250)}`
+      error: "Image generation failed. Please try again."
     });
   }
 };
