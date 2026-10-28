@@ -1,20 +1,26 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5efe8">
-  <title>AI Home Decor Studio</title>
+  <meta name="theme-color" content="#080b16">
+  <meta name="description" content="Reimagine your home with RoomBloom AI Decor. Upload a room photo and explore new interior design styles with AI.">
+  <title>RoomBloom AI Decor | Modern AI Studio</title>
   <link rel="stylesheet" href="/style.css">
 </head>
+<body>
 
+  <!-- Left navigation sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <a class="sidebar-logo" href="/" aria-label="RoomBloom home">⌂</a>
+      <a class="sidebar-logo" href="#home" aria-label="RoomBloom home">⌂</a>
+
       <div class="sidebar-brand-text">
         <strong>RoomBloom</strong>
         <small>AI HOME DECOR</small>
       </div>
+
       <button
         class="sidebar-toggle"
         id="sidebar-toggle"
@@ -43,7 +49,7 @@
         <span class="nav-text">My Designs</span>
       </a>
 
-      <a class="sidebar-link" href="#result-area" title="Favorites">
+      <a class="sidebar-link" href="#favorites" title="Favorites">
         <span class="nav-icon">♡</span>
         <span class="nav-text">Favorites</span>
       </a>
@@ -65,84 +71,257 @@
     </div>
   </aside>
 
+  <!-- Main application shell -->
   <div class="app-shell">
+
     <header class="topbar">
       <button
         class="mobile-menu"
         id="mobile-menu"
         type="button"
-        aria-label="Toggle navigation"
+        aria-label="Open navigation menu"
         aria-expanded="false"
       >☰</button>
-      <a class="brand" href="/">
+
+      <a class="brand" href="#home">
         <span class="brand-icon">⌂</span>
         RoomBloom <small>AI HOME DECOR</small>
       </a>
+
       <span class="top-note">Your room, reimagined</span>
     </header>
 
-    <a class="brand" href="/"> <span class="brand-icon">⌂</span> RoomBloom <small>AI HOME DECOR</small></a>
-    <span class="top-note">Your room, reimagined</span>
-  </header>
- <main class="page" id="home">
-    <section class="hero">
-      <p class="eyebrow">DESIGN YOUR SPACE WITH AI</p>
-      <h1>A fresh look for<br><span>your favourite room.</span></h1>
-      <p class="intro">Upload a room photo, choose a style, and create a new decor concept in moments.</p>
-    </section>
-    <section class="workspace">
-      <form id="decor-form" class="panel">
-        <h2>Make it yours</h2>
-        <label class="field-label" for="room-image">1. Upload a room photo</label>
-        <label class="upload" for="room-image" id="drop-zone">
-          <input id="room-image" name="image" type="file" accept="image/png,image/jpeg,image/webp" required>
-          <span class="upload-icon">↑</span>
-          <strong id="upload-title">Choose an image or drop it here</strong>
-          <span id="upload-subtitle">PNG, JPG or WebP · Max 8 MB</span>
-          <img id="preview" alt="Selected room preview" hidden>
-        </label>
-        <label class="field-label" for="room-type">2. Which room is it?</label>
-        <select id="room-type" name="room" required>
-          <option value="living room">Living room</option>
-          <option value="bedroom">Bedroom</option>
-          <option value="kitchen">Kitchen</option>
-          <option value="dining room">Dining room</option>
-          <option value="home office">Home office</option>
-          <option value="bathroom">Bathroom</option>
-        </select>
-        <label class="field-label">3. Pick your style</label>
-        <div class="styles">
-          <label class="style-option"><input type="radio" name="style" value="modern minimalist" checked><span class="swatch minimal"></span><b>Minimal</b><small>Clean & calm</small></label>
-          <label class="style-option"><input type="radio" name="style" value="warm bohemian"><span class="swatch boho"></span><b>Bohemian</b><small>Warm & natural</small></label>
-          <label class="style-option"><input type="radio" name="style" value="Scandinavian"><span class="swatch scandi"></span><b>Scandinavian</b><small>Light & airy</small></label>
-          <label class="style-option"><input type="radio" name="style" value="luxury contemporary"><span class="swatch luxe"></span><b>Luxury</b><small>Elegant & rich</small></label>
-          <label class="style-option"><input type="radio" name="style" value="industrial modern"><span class="swatch industrial"></span><b>Industrial</b><small>Bold & urban</small></label>
-          <label class="style-option"><input type="radio" name="style" value="traditional Indian"><span class="swatch indian"></span><b>Indian</b><small>Colour & craft</small></label>
-        </div>
-        <label class="field-label" for="extra">4. Any extra ideas? <span class="optional">Optional</span></label>
-        <textarea id="extra" maxlength="300" rows="3" placeholder="e.g. earthy colours, indoor plants, keep my existing sofa…"></textarea>
-        <button id="generate-btn" type="submit"><span>✦</span> Generate my room design</button>
-        <p class="privacy">Your image is sent to the configured AI provider to create the design.</p>
-        <p id="status" class="status" role="status" aria-live="polite"></p>
-      </form>
-      <section class="result-panel">
-        <div class="result-heading"><div><p class="eyebrow">YOUR DESIGN CANVAS</p><h2>Imagine the possibilities</h2></div><span class="sparkle">✧</span></div>
-        <div id="result-area" class="result-area">
-          <div class="empty-art">
-            <div class="sun"></div><div class="art-window"><span></span></div>
-            <div class="art-frame"></div><div class="plant"><i></i><i></i><i></i><i></i><b></b></div>
-            <div class="sofa"><div></div><div></div><div></div></div>
-            <div class="table"></div><div class="rug"></div>
-          </div>
-          <h3>Your next favourite room starts here.</h3>
-          <p>Upload a photo and generate a fresh decor concept.</p>
-        </div>
-        <div id="result-actions" class="result-actions" hidden><button id="download-btn" class="secondary" type="button">Download design</button><button id="reset-btn" class="text-button" type="button">Start over</button></div>
-        <div class="tip"><span>✦</span><p><b>Design tip</b><br>Bright, well-lit photos with a clear view of the room usually give the AI more to work with.</p></div>
+    <main class="page" id="home">
+
+      <section class="hero">
+        <p class="eyebrow">✦ YOUR PERSONAL AI DESIGN STUDIO</p>
+
+        <h1>
+          A fresh look for<br>
+          <span>your favourite room.</span>
+        </h1>
+
+        <p class="intro">
+          Transform your space with AI. Upload a photo, choose your
+          favourite aesthetic, and discover a whole new room.
+        </p>
       </section>
-    </section>
-    <footer>RoomBloom · AI-powered inspiration for your home <span>Made for creative spaces</span></footer>
-  </main>
+
+      <section class="workspace" aria-label="AI room design workspace">
+
+        <!-- Existing image-generation form: IDs preserved -->
+        <form id="decor-form" class="panel">
+
+          <h2>✨ Create your design</h2>
+
+          <label class="field-label" for="room-image">
+            1. Upload a room photo
+          </label>
+
+          <label class="upload" for="room-image" id="drop-zone">
+            <input
+              id="room-image"
+              name="image"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              required
+            >
+
+            <span class="upload-icon">↑</span>
+
+            <strong id="upload-title">
+              Choose an image or drop it here
+            </strong>
+
+            <span id="upload-subtitle">
+              PNG, JPG or WebP · Max 8 MB
+            </span>
+
+            <img
+              id="preview"
+              alt="Selected room preview"
+              hidden
+            >
+          </label>
+
+          <label class="field-label" for="room-type">
+            2. Which room are you redesigning?
+          </label>
+
+          <select id="room-type" name="room" required>
+            <option value="living room">Living room</option>
+            <option value="bedroom">Bedroom</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="dining room">Dining room</option>
+            <option value="home office">Home office</option>
+            <option value="bathroom">Bathroom</option>
+          </select>
+
+          <label class="field-label">
+            3. Choose your design style
+          </label>
+
+          <div class="styles">
+
+            <label class="style-option">
+              <input type="radio" name="style"
+                value="modern minimalist" checked>
+              <span class="swatch minimal"></span>
+              <b>Minimal</b>
+              <small>Clean &amp; calm</small>
+            </label>
+
+            <label class="style-option">
+              <input type="radio" name="style"
+                value="warm bohemian">
+              <span class="swatch boho"></span>
+              <b>Bohemian</b>
+              <small>Warm &amp; natural</small>
+            </label>
+
+            <label class="style-option">
+              <input type="radio" name="style"
+                value="Scandinavian">
+              <span class="swatch scandi"></span>
+              <b>Scandinavian</b>
+              <small>Light &amp; airy</small>
+            </label>
+
+            <label class="style-option">
+              <input type="radio" name="style"
+                value="luxury contemporary">
+              <span class="swatch luxe"></span>
+              <b>Luxury</b>
+              <small>Elegant &amp; rich</small>
+            </label>
+
+            <label class="style-option">
+              <input type="radio" name="style"
+                value="industrial modern">
+              <span class="swatch industrial"></span>
+              <b>Industrial</b>
+              <small>Bold &amp; urban</small>
+            </label>
+
+            <label class="style-option">
+              <input type="radio" name="style"
+                value="traditional Indian">
+              <span class="swatch indian"></span>
+              <b>Indian</b>
+              <small>Colour &amp; craft</small>
+            </label>
+
+          </div>
+
+          <label class="field-label" for="extra">
+            4. Add your personal touch
+            <span class="optional">Optional</span>
+          </label>
+
+          <textarea
+            id="extra"
+            name="extra"
+            maxlength="300"
+            rows="3"
+            placeholder="e.g. earthy colours, indoor plants, keep my existing sofa…"
+          ></textarea>
+
+          <button id="generate-btn" type="submit">
+            <span>✦</span> Generate my room design
+          </button>
+
+          <p class="privacy">
+            Your image is sent to the configured AI provider to create the design.
+          </p>
+
+          <p
+            id="status"
+            class="status"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+        </form>
+
+        <!-- Existing result area: IDs preserved -->
+        <section class="result-panel" aria-label="Generated room design">
+
+          <div class="result-heading">
+            <div>
+              <p class="eyebrow">YOUR DESIGN CANVAS</p>
+              <h2>Imagine the possibilities</h2>
+            </div>
+            <span class="sparkle">✧</span>
+          </div>
+
+          <div id="result-area" class="result-area">
+
+            <div class="empty-art">
+              <div class="sun"></div>
+
+              <div class="art-window">
+                <span></span>
+              </div>
+
+              <div class="art-frame"></div>
+
+              <div class="plant">
+                <i></i><i></i><i></i><i></i><b></b>
+              </div>
+
+              <div class="sofa">
+                <div></div><div></div><div></div>
+              </div>
+
+              <div class="table"></div>
+              <div class="rug"></div>
+            </div>
+
+            <h3>Your next favourite room starts here.</h3>
+
+            <p>
+              Your imagination is the limit. Generate your first design
+              to see the transformation.
+            </p>
+
+          </div>
+
+          <div id="result-actions" class="result-actions" hidden>
+            <button
+              id="download-btn"
+              class="secondary"
+              type="button"
+            >Download design</button>
+
+            <button
+              id="reset-btn"
+              class="text-button"
+              type="button"
+            >Start over</button>
+          </div>
+
+          <div class="tip">
+            <span>✦</span>
+            <p>
+              <b>Design tip</b><br>
+              Bright, well-lit photos with a clear view of the room
+              usually give the AI more to work with.
+            </p>
+          </div>
+
+        </section>
+      </section>
+
+      <footer>
+        <span>RoomBloom · AI-powered inspiration for your home</span>
+        <span>Made for creative spaces ✦</span>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Existing JavaScript file -->
   <script src="/app.js" defer></script>
+
 </body>
 </html>
