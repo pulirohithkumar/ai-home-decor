@@ -51,7 +51,7 @@ form.addEventListener("submit", async e => {
   statusBox.textContent = "Sending your photo to the AI service. This may take a minute.";
   try {
     const imageData = await readAsDataURL(file);
-    const response = await fetch("/.netlify/functions/generate", {
+   const response = await fetch("/api/generate", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({image: imageData, room, style, extra})
